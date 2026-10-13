@@ -1410,7 +1410,8 @@ impl AppState {
                 ) {
                     self.toast = Some(ToastNotification {
                         kind: ToastKind::UpdateInstalled,
-                        title: rust_i18n::t!("toast.version_available", version = version).to_string(),
+                        title: rust_i18n::t!("toast.version_available", version = version)
+                            .to_string(),
                         context: crate::update::update_install_instruction(&install_command),
                         position: None,
                         target: None,

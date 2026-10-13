@@ -1973,9 +1973,7 @@ pub(crate) fn update_install_command() -> &'static str {
 
 pub(crate) fn update_install_instruction(install_command: &str) -> String {
     match install_command {
-        HERDR_UPDATE_COMMAND => {
-            t!("update.instruction_fork", url = FORK_RELEASES_URL).to_string()
-        }
+        HERDR_UPDATE_COMMAND => t!("update.instruction_fork", url = FORK_RELEASES_URL).to_string(),
         HOMEBREW_UPDATE_COMMAND => t!(
             "update.instruction_command",
             command = "brew update && brew upgrade herdr"
@@ -3045,7 +3043,10 @@ mod tests {
     #[test]
     fn fork_tags_compare_by_upstream_base_version() {
         assert_eq!(fork_tag_base_version("v0.9.4-cn"), Version::parse("0.9.4"));
-        assert_eq!(fork_tag_base_version("v0.9.4-cn.1"), Version::parse("0.9.4"));
+        assert_eq!(
+            fork_tag_base_version("v0.9.4-cn.1"),
+            Version::parse("0.9.4")
+        );
         assert_eq!(fork_tag_base_version("0.10.0-cn"), Version::parse("0.10.0"));
         assert!(fork_tag_base_version("v0.9.4-cn.1") <= Some(Version::parse("0.9.4").unwrap()));
     }

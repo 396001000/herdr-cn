@@ -327,7 +327,10 @@ mod tests {
         );
         assert_eq!(lines[0].spans[1].style.fg, Some(palette.accent));
         assert_eq!(lines[0].spans[2].style.fg, Some(palette.text));
-        assert_eq!(lines[1].spans[2].content.as_ref(), "https://github.com/396001000/herdr-cn/releases/latest");
+        assert_eq!(
+            lines[1].spans[2].content.as_ref(),
+            "https://github.com/396001000/herdr-cn/releases/latest"
+        );
         assert_eq!(lines[1].spans[2].style.fg, Some(palette.accent));
         assert_eq!(lines[1].spans[2].style.bg, Some(palette.surface0));
     }
