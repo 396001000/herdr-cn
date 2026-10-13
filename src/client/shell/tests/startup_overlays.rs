@@ -358,10 +358,6 @@ fn startup_onboarding_shows_configured_prefix() {
     state.set_snapshot(Box::new(snapshot()));
     state.set_pane_surface(surface());
 
-    // 本用例断言的是英文文案，显式钉住 en，避免默认 zh 时把渲染出的中文
-    // （locale 词条 prefix_hint = " 进入前缀模式 · "）判成不匹配。
-    crate::i18n::apply_locale("en");
-
     let frame = state.compose(70, 20).expect("onboarding frame");
     let text = frame
         .cells
