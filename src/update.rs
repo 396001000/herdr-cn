@@ -25,6 +25,65 @@ use serde::{Deserialize, Deserializer};
 
 const STABLE_UPDATE_MANIFEST_URL: &str = "https://herdr.dev/latest.json";
 const PREVIEW_UPDATE_MANIFEST_URL: &str = "https://herdr.dev/preview.json";
+
+// herdr-cn fork: never replace the Chinese build with the official one.
+// Update checks read this fork's GitHub Releases, and `herdr update` only
+// points at the release page instead of downloading herdr.dev binaries.
+const FORK_SELF_UPDATE_DISABLED: bool = true;
+pub(crate) const FORK_RELEASES_URL: &str = "https://github.com/396001000/herdr-cn/releases/latest";
+const FORK_LATEST_RELEASE_API: &str =
+    "https://api.github.com/repos/396001000/herdr-cn/releases/latest";
+
+#[derive(Debug, serde::Deserialize)]
+struct ForkRelease {
+    tag_name: String,
+    #[serde(default)]
+    body: Option<String>,
+}
+
+/// Base upstream version of a fork tag such as `v0.9.4-cn` or `v0.9.4-cn.1`.
+fn fork_tag_base_version(tag: &str) -> Option<Version> {
+    let tag = tag.trim().strip_prefix('v').unwrap_or(tag.trim());
+    let base = tag.split("-cn").next().unwrap_or(tag);
+    Version::parse(base)
+}
+
+fn check_fork_latest() -> Result<Option<(Version, String)>, String> {
+    let release: ForkRelease = fetch_json_manifest(FORK_LATEST_RELEASE_API)?;
+    let Some(latest) = fork_tag_base_version(&release.tag_name) else {
+        return Err(t!("update.invalid_version", version = release.tag_name).to_string());
+    };
+    if latest > Version::current() {
+        Ok(Some((latest, release.body.unwrap_or_default())))
+    } else {
+        Ok(None)
+    }
+}
+
+fn auto_update_fork(events: tokio::sync::mpsc::Sender<crate::events::AppEvent>) {
+    let (version, body) = match check_fork_latest() {
+        Ok(Some(found)) => found,
+        Ok(None) => return,
+        Err(err) => {
+            crate::logging::update_check_failed(&err);
+            return;
+        }
+    };
+    let version = version.to_string();
+    crate::logging::update_available(&version);
+    let body = if body.trim().is_empty() {
+        format!("- {FORK_RELEASES_URL}")
+    } else {
+        body
+    };
+    if let Err(e) = crate::release_notes::save_pending(&version, &body) {
+        tracing::warn!("failed to save pending release notes: {e}");
+    }
+    let _ = events.blocking_send(crate::events::AppEvent::UpdateReady {
+        version,
+        install_command: update_install_command().to_string(),
+    });
+}
 const HOMEBREW_FORMULA_API_URL: &str = "https://formulae.brew.sh/api/formula/herdr.json";
 const HERDR_UPDATE_COMMAND: &str = "herdr update";
 const HOMEBREW_UPDATE_COMMAND: &str = "brew update && brew upgrade herdr";
@@ -1915,19 +1974,18 @@ pub(crate) fn update_install_command() -> &'static str {
 pub(crate) fn update_install_instruction(install_command: &str) -> String {
     match install_command {
         HERDR_UPDATE_COMMAND => {
-            "detach, run `herdr update`, then run Herdr again to reconnect".to_string()
+            t!("update.instruction_fork", url = FORK_RELEASES_URL).to_string()
         }
-        HOMEBREW_UPDATE_COMMAND => {
-            "detach, run `brew update && brew upgrade herdr`, then run Herdr again to reconnect"
-                .to_string()
-        }
+        HOMEBREW_UPDATE_COMMAND => t!(
+            "update.instruction_command",
+            command = "brew update && brew upgrade herdr"
+        )
+        .to_string(),
         MISE_UPDATE_COMMAND => {
-            "detach, run `mise upgrade herdr`, then run Herdr again to reconnect".to_string()
+            t!("update.instruction_command", command = "mise upgrade herdr").to_string()
         }
-        NIX_UPDATE_COMMAND => {
-            "detach, update through Nix, then run Herdr again to reconnect".to_string()
-        }
-        command => format!("detach, run `{command}`, then run Herdr again to reconnect"),
+        NIX_UPDATE_COMMAND => t!("update.instruction_nix").to_string(),
+        command => t!("update.instruction_command", command = command).to_string(),
     }
 }
 
@@ -2126,6 +2184,10 @@ fn homebrew_cellar_keg_root(path: &Path) -> Option<PathBuf> {
 
 /// Manual self-update command (`herdr update`).
 pub fn self_update(options: SelfUpdateOptions) -> Result<Version, String> {
+    if FORK_SELF_UPDATE_DISABLED {
+        let _ = &options;
+        return Err(t!("update.fork_self_update_disabled", url = FORK_RELEASES_URL).to_string());
+    }
     let channel = UpdateChannel::configured();
 
     if is_homebrew_managed_install() {
@@ -2388,6 +2450,11 @@ pub fn auto_update(events: tokio::sync::mpsc::Sender<crate::events::AppEvent>) {
                 install_command: update_install_command().to_string(),
             });
         }
+        return;
+    }
+
+    if FORK_SELF_UPDATE_DISABLED {
+        auto_update_fork(events);
         return;
     }
 
@@ -2976,10 +3043,18 @@ mod tests {
     }
 
     #[test]
+    fn fork_tags_compare_by_upstream_base_version() {
+        assert_eq!(fork_tag_base_version("v0.9.4-cn"), Version::parse("0.9.4"));
+        assert_eq!(fork_tag_base_version("v0.9.4-cn.1"), Version::parse("0.9.4"));
+        assert_eq!(fork_tag_base_version("0.10.0-cn"), Version::parse("0.10.0"));
+        assert!(fork_tag_base_version("v0.9.4-cn.1") <= Some(Version::parse("0.9.4").unwrap()));
+    }
+
+    #[test]
     fn update_install_instruction_distinguishes_install_from_restart() {
         assert_eq!(
             update_install_instruction(HERDR_UPDATE_COMMAND),
-            "detach, run `herdr update`, then run Herdr again to reconnect"
+            "detach, download the latest herdr-cn release from `https://github.com/396001000/herdr-cn/releases/latest`, then run Herdr again to reconnect"
         );
         assert_eq!(
             update_install_instruction(HOMEBREW_UPDATE_COMMAND),

@@ -1410,7 +1410,7 @@ impl AppState {
                 ) {
                     self.toast = Some(ToastNotification {
                         kind: ToastKind::UpdateInstalled,
-                        title: format!("v{version} available"),
+                        title: rust_i18n::t!("toast.version_available", version = version).to_string(),
                         context: crate::update::update_install_instruction(&install_command),
                         position: None,
                         target: None,
@@ -4372,7 +4372,7 @@ mod tests {
         assert_eq!(toast.title, "v0.5.0 available");
         assert_eq!(
             toast.context,
-            "detach, run `herdr update`, then run Herdr again to reconnect"
+            "detach, download the latest herdr-cn release from `https://github.com/396001000/herdr-cn/releases/latest`, then run Herdr again to reconnect"
         );
     }
 

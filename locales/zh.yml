@@ -201,6 +201,10 @@ status:
 
 # update 模块交互提示与错误信息 (update.rs)
 update:
+  fork_self_update_disabled: "herdr-cn 已禁用自动更新，以免中文版被官方英文版覆盖；请从 %{url} 下载最新的 herdr-cn 版本"
+  instruction_fork: "先脱离会话，从 `%{url}` 下载最新的 herdr-cn 版本，然后重新运行 Herdr 连接"
+  instruction_command: "先脱离会话，运行 `%{command}`，然后重新运行 Herdr 连接"
+  instruction_nix: "先脱离会话，通过 Nix 更新，然后重新运行 Herdr 连接"
   stop_after_install_prompt: "安装后停止吗？[y/N] "
   please_y_n: "请回答 y 或 n"
   stop_old_server_question: "安装后停止旧服务器吗？停止会退出其窗格进程。"
@@ -471,6 +475,14 @@ keybind:
 
 # release 发布说明 (release_notes.rs)
 release:
+  heading_added: "新增"
+  heading_changed: "变更"
+  heading_fixed: "修复"
+  heading_removed: "移除"
+  heading_deprecated: "弃用"
+  heading_security: "安全"
+  heading_performance: "性能"
+  heading_breaking: "不兼容变更"
   update_ready: "有可用更新"
   whats_new: "此版本的更新内容"
   announcement_preview: "产品公告预览"

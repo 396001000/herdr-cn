@@ -101,18 +101,18 @@ pub(crate) fn release_notes_lines<'a>(body: &'a str, p: &Palette) -> Vec<(usize,
         }
 
         if let Some(rest) = trimmed.strip_prefix("### ") {
-            let text = rest.trim().to_string();
+            let text = localized_release_heading(rest.trim());
             if text.is_empty() {
                 lines.push((0, Line::raw("")));
                 continue;
             }
-            let width = 1 + text.chars().count();
+            let width = 1 + unicode_width::UnicodeWidthStr::width(text.as_str());
             lines.push((
                 width,
                 Line::from(vec![
                     Span::raw(" "),
                     Span::styled(
-                        text.to_uppercase(),
+                        text,
                         Style::default().fg(p.accent).add_modifier(Modifier::BOLD),
                     ),
                 ]),
@@ -139,6 +139,22 @@ pub(crate) fn release_notes_lines<'a>(body: &'a str, p: &Palette) -> Vec<(usize,
     }
 
     lines
+}
+
+/// Translates the standard changelog section headings; other headings are kept.
+fn localized_release_heading(heading: &str) -> String {
+    let text = match heading.to_ascii_lowercase().as_str() {
+        "added" => rust_i18n::t!("release.heading_added"),
+        "changed" => rust_i18n::t!("release.heading_changed"),
+        "fixed" => rust_i18n::t!("release.heading_fixed"),
+        "removed" => rust_i18n::t!("release.heading_removed"),
+        "deprecated" => rust_i18n::t!("release.heading_deprecated"),
+        "security" => rust_i18n::t!("release.heading_security"),
+        "performance" => rust_i18n::t!("release.heading_performance"),
+        "breaking changes" => rust_i18n::t!("release.heading_breaking"),
+        _ => return heading.to_uppercase(),
+    };
+    text.to_string()
 }
 
 fn release_notes_preview_line_entries<'a>(
@@ -307,11 +323,11 @@ mod tests {
         assert_eq!(line_text(&lines[0]), " ● update ready");
         assert_eq!(
             line_text(&lines[1]),
-            " detach, run herdr update, then run Herdr again to reconnect"
+            " detach, download the latest herdr-cn release from https://github.com/396001000/herdr-cn/releases/latest, then run Herdr again to reconnect"
         );
         assert_eq!(lines[0].spans[1].style.fg, Some(palette.accent));
         assert_eq!(lines[0].spans[2].style.fg, Some(palette.text));
-        assert_eq!(lines[1].spans[2].content.as_ref(), "herdr update");
+        assert_eq!(lines[1].spans[2].content.as_ref(), "https://github.com/396001000/herdr-cn/releases/latest");
         assert_eq!(lines[1].spans[2].style.fg, Some(palette.accent));
         assert_eq!(lines[1].spans[2].style.bg, Some(palette.surface0));
     }
@@ -331,7 +347,7 @@ mod tests {
         assert_eq!(line_text(&lines[0].1), " ● update ready");
         assert_eq!(
             line_text(&lines[1].1),
-            " detach, run herdr update, then run Herdr again to reconnect"
+            " detach, download the latest herdr-cn release from https://github.com/396001000/herdr-cn/releases/latest, then run Herdr again to reconnect"
         );
         assert_eq!(line_text(&lines[2].1), "");
         assert_eq!(line_text(&lines[3].1), " ADDED");

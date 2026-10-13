@@ -201,6 +201,10 @@ status:
 
 # update 模块交互提示与错误信息 (update.rs)
 update:
+  fork_self_update_disabled: "self-update is disabled in herdr-cn so the Chinese build is never replaced by the official one; download the latest herdr-cn release from %{url}"
+  instruction_fork: "detach, download the latest herdr-cn release from `%{url}`, then run Herdr again to reconnect"
+  instruction_command: "detach, run `%{command}`, then run Herdr again to reconnect"
+  instruction_nix: "detach, update through Nix, then run Herdr again to reconnect"
   stop_after_install_prompt: "stop after installing? [y/N] "
   please_y_n: "please answer y or n"
   stop_old_server_question: "Stop the old server after installing? Stopping exits pane processes."
@@ -471,6 +475,14 @@ keybind:
 
 # release 发布说明 (release_notes.rs)
 release:
+  heading_added: "ADDED"
+  heading_changed: "CHANGED"
+  heading_fixed: "FIXED"
+  heading_removed: "REMOVED"
+  heading_deprecated: "DEPRECATED"
+  heading_security: "SECURITY"
+  heading_performance: "PERFORMANCE"
+  heading_breaking: "BREAKING CHANGES"
   update_ready: "update ready"
   whats_new: "what's new in this release"
   announcement_preview: "product announcement preview"
