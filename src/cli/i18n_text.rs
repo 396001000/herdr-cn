@@ -167,7 +167,7 @@ mod tests {
     fn every_translatable_cli_description_actually_goes_through_localize() {
         crate::i18n::apply_locale("zh");
         let mut root = super::super::spec::command();
-        root.build_self();
+        root.build();
         let mut gaps = Vec::new();
         walk(&root, &mut gaps);
         assert!(
