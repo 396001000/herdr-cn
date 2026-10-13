@@ -191,6 +191,29 @@ pub enum PaneLayoutPreset {
     MainTop,
 }
 
+// fork 自有：layout.rearrange 的返回值与原因（上游没有该 method，故一并保留）。
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, schemars::JsonSchema)]
+pub struct LayoutRearrangeResult {
+    pub changed: bool,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub reason: Option<LayoutRearrangeReason>,
+    pub anchor_pane_id: String,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub target_pane_id: Option<String>,
+    pub focused_pane_id: String,
+    pub layout: PaneLayoutSnapshot,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, schemars::JsonSchema)]
+#[serde(rename_all = "snake_case")]
+pub enum LayoutRearrangeReason {
+    SamePane,
+    CrossTab,
+    ZoomedTab,
+    SinglePane,
+    Unchanged,
+}
+
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, schemars::JsonSchema, Default)]
 pub struct LayoutExportParams {
     #[serde(default, skip_serializing_if = "Option::is_none")]
