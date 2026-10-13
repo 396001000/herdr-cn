@@ -128,3 +128,52 @@ pub(crate) fn localize(text: &str) -> String {
         _ => text.to_string(),
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::localize;
+    use clap::Command;
+
+    /// 中文确实生效、英文与未收录串都原样回退——整套收口机制的护栏。
+    /// nextest 每用例独立进程，set locale 不会污染别的用例。
+    #[test]
+    fn cli_help_translates_under_zh_and_falls_back_otherwise() {
+        crate::i18n::apply_locale("en");
+        assert_eq!(localize("List agents"), "List agents");
+        crate::i18n::apply_locale("zh");
+        assert_eq!(localize("List agents"), "列出智能体");
+        assert_eq!(localize("List panes"), "列出窗格");
+        assert_eq!(
+            localize("Some brand new upstream wording"),
+            "Some brand new upstream wording"
+        );
+    }
+
+    fn walk(command: &Command, gaps: &mut Vec<String>) {
+        if let Some(about) = command.get_about() {
+            let text = about.to_string();
+            // 有译文、却还是英文 → 这个构建点绕过了 localize，接线漏了
+            if text.is_ascii() && localize(&text) != text {
+                gaps.push(format!("{}: {}", command.get_name(), text));
+            }
+        }
+        for sub in command.get_subcommands() {
+            walk(sub, gaps);
+        }
+    }
+
+    /// 遍历整棵命令树：凡是有译文可用却没被翻译的描述，一律算接线缺口。
+    #[test]
+    fn every_translatable_cli_description_actually_goes_through_localize() {
+        crate::i18n::apply_locale("zh");
+        let mut root = super::super::spec::command();
+        root.build_self();
+        let mut gaps = Vec::new();
+        walk(&root, &mut gaps);
+        assert!(
+            gaps.is_empty(),
+            "以下描述有译文却没走 localize（构建点绕过了收口）：\n{}",
+            gaps.join("\n")
+        );
+    }
+}
