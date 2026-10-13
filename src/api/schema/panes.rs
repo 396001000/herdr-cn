@@ -148,6 +148,16 @@ crate::cli::projection::cli_params! {
     }
 }
 
+crate::cli::projection::cli_params! {
+    #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, schemars::JsonSchema, Default)]
+    pub struct PaneProcessInfoParams => PaneProcessInfoProjection {
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        pub pane_id: Option<String> => binding::target(false),
+    }
+}
+
+// fork 自有：layout.rearrange 的参数（API-only，CLI 两侧都未暴露，故按上游
+// PaneLinkActivateParams / LayoutApplyParams 同款「普通结构体」写法保留）。
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize, schemars::JsonSchema)]
 pub struct LayoutRearrangeParams {
     pub operation: LayoutRearrangeOperation,
@@ -179,12 +189,6 @@ pub enum PaneLayoutPreset {
     Grid,
     MainLeft,
     MainTop,
-}
-
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, schemars::JsonSchema, Default)]
-pub struct PaneProcessInfoParams {
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub pane_id: Option<String>,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, schemars::JsonSchema, Default)]
@@ -702,28 +706,6 @@ pub struct PaneLayoutSplit {
     pub direction: SplitDirection,
     pub ratio: f32,
     pub rect: PaneLayoutRect,
-}
-
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, schemars::JsonSchema)]
-pub struct LayoutRearrangeResult {
-    pub changed: bool,
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub reason: Option<LayoutRearrangeReason>,
-    pub anchor_pane_id: String,
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub target_pane_id: Option<String>,
-    pub focused_pane_id: String,
-    pub layout: PaneLayoutSnapshot,
-}
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, schemars::JsonSchema)]
-#[serde(rename_all = "snake_case")]
-pub enum LayoutRearrangeReason {
-    SamePane,
-    CrossTab,
-    ZoomedTab,
-    SinglePane,
-    Unchanged,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize, schemars::JsonSchema)]

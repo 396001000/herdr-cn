@@ -852,7 +852,9 @@ impl PtyIoActorRunner {
 
     fn read_once(&mut self) -> ReadOutcome {
         let mut buf = [0u8; 8192];
-        match self.file.read(&mut buf) {
+        // fork 自有：把读结果细化成 ReadOutcome::{Read,Idle,Closed}（上游此处只返回 bool）。
+        // 上游这次把 self.file 换成了 Arc<File>，故接收者用 as_ref()——两边改动都保留。
+        match self.file.as_ref().read(&mut buf) {
             Ok(0) => ReadOutcome::Closed,
             Err(err) if err.kind() == std::io::ErrorKind::WouldBlock => ReadOutcome::Idle,
             Err(err) if err.kind() == std::io::ErrorKind::Interrupted => ReadOutcome::Idle,
