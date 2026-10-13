@@ -439,7 +439,7 @@ impl ClientShellState {
         self.push_endpoint_notice(
             ClientEndpointNoticeKind::Unavailable,
             message.clone(),
-            "Endpoint unavailable",
+            rust_i18n::t!("endpoint.endpoint_unavailable").to_string(),
             message,
         )
     }

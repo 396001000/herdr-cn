@@ -368,6 +368,7 @@ endpoint:
   timeout_body: "此服务器未响应 %{method}。"
   server_unavailable: "服务器不可用"
   action_rejected: "操作被拒绝"
+  endpoint_unavailable: "端点不可用"
 
 # settings 设置面板 (settings.rs)
 settings:

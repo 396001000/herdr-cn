@@ -68,6 +68,8 @@ Herdr は Linux/macOS の統合設定と全プラットフォームの新規フ�
 | ライフサイクル権威 | Pi、OMP、Qwen Code、Kimi Code CLI、OpenCode、Kilo Code CLI、MastraCode | インストールされ、そのペインについて能動的に報告している間は、フックまたはプラグインのイベントが `idle`、`working`、`blocked` を決定します。同じライフサイクル権威に対して、Herdr はスクリーンマニフェストのフォールバックを併用しません。 |
 | セッション識別 | Claude Code、Codex、GitHub Copilot CLI、Devin CLI、Droid、Qoder CLI、Cursor Agent CLI、Hermes Agent、Antigravity CLI、Grok CLI | インテグレーションは復元用のネイティブセッション参照を報告します。状態は引き続き Herdr のスクリーンマニフェスト検出から得られます。 |
 
+Codex は `--no-daemon` で起動した場合にターン状態を報告し、表示中のブロッカーは引き続き画面検出で扱います。
+
 カスタムインテグレーションも、ネイティブのターミナル UI では見えない状態を定義する場合に状態を報告できます。Herdr への組み込みや、認識済みのエージェント実行ファイルは必要ありません。
 
 ## 独自エージェントを統合する
@@ -161,7 +163,7 @@ Codex フックをインストールします:
 herdr integration install codex
 ```
 
-Codex フックは、他のインテグレーションと同じローカルソケット API を通じてセッション識別を報告します。Codex の状態は Herdr のスクリーンマニフェスト検出から得られます。
+Codex を `--no-daemon` で起動すると、フックがローカルソケット API を通じてセッション識別とターンの開始・終了を報告します。表示中のブロッカーやフックが使えない場合は、引き続き画面検出が補います。共有 Codex デーモンは別のペインへフックを送ることがあるため、確実な報告には `--no-daemon` を使ってください。デーモンの自動起動を無効にするだけでは、既存のデーモンは停止しません。
 
 Herdr はデフォルトで `~/.codex` を使い、`CODEX_HOME` が設定されていればそちらを使います。Codex の設定ディレクトリはあらかじめ存在している必要があります。インストールは `herdr-agent-state.sh` を書き込み、`hooks.json` を更新し、`config.toml` に `[features] hooks = true` があることを保証します。非推奨のトップレベル `codex_hooks` フラグが存在すれば削除もします。アンインストールは `hooks.json` から Herdr のエントリを削除してフックスクリプトを削除しますが、`config.toml` は変更しません。
 

@@ -368,6 +368,7 @@ endpoint:
   timeout_body: "This server did not respond to %{method}."
   server_unavailable: "Server unavailable"
   action_rejected: "Action rejected"
+  endpoint_unavailable: "Endpoint unavailable"
 
 # settings 设置面板 (settings.rs)
 settings:
