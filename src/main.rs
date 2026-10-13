@@ -563,6 +563,15 @@ fn main() -> io::Result<()> {
         std::process::exit(2);
     }
 
+    // 必须在任何 CLI 输出（含 `herdr <子命令> --help`）之前应用 locale：
+    // cli::maybe_run() 内部就会用 clap 打印帮助，原来这段跑在它后面，
+    // 导致子命令帮助一直按默认 en 渲染（顶层 --help 是 main.rs 里手写 println!(t!(…))，
+    // 发生在应用之后，所以一直是中文——这就是"改了接线帮助还是英文"的真正原因）。
+    {
+        let early_config = config::Config::load();
+        i18n::apply_locale(&early_config.config.ui.language);
+    }
+
     finish_cli(cli::maybe_run(&args))?;
 
     if args.get(1).map(String::as_str) == Some("remote-api-bridge") {
@@ -576,13 +585,6 @@ fn main() -> io::Result<()> {
 
     if args.get(1).map(|s| s.as_str()) == Some("server") {
         return server::headless::run_server();
-    }
-
-    // CLI 子命令（update/status 等）分发前先应用语言设置，确保命令输出也使用
-    // config.toml 中 ui.language 指定的 locale。
-    {
-        let early_config = config::Config::load();
-        i18n::apply_locale(&early_config.config.ui.language);
     }
 
     // Hidden client mode: connect to an existing server's client socket.
