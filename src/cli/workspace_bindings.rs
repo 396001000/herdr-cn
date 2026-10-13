@@ -121,7 +121,7 @@ impl Leaf {
     }
 
     fn command(&self) -> Command {
-        super::projection::command(self.name, (self.arguments)()).about(self.about)
+        super::projection::command(self.name, (self.arguments)()).about(crate::cli::localize(self.about))
     }
 }
 

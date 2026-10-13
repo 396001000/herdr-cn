@@ -52,7 +52,7 @@ pub(super) fn command() -> Command {
 }
 
 fn profile_command(name: &'static str, about: &'static str) -> Command {
-    Command::new(name).about(about).arg(
+    Command::new(name).about(crate::cli::localize(about)).arg(
         Arg::new("profile-id")
             .value_name("PROFILE_ID")
             .required(true),

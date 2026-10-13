@@ -163,7 +163,8 @@ struct Leaf {
 
 impl Leaf {
     fn command(&self) -> Command {
-        let command = projection::command(self.name, (self.arguments)()).about(self.about);
+        let command =
+            projection::command(self.name, (self.arguments)()).about(crate::cli::localize(self.about));
         if self.json {
             command.arg(Arg::new("json").long("json").action(ArgAction::SetTrue))
         } else {

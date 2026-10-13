@@ -400,7 +400,8 @@ pub(super) struct Leaf {
 
 impl Leaf {
     pub(super) fn command(&self) -> Command {
-        let command = projection::command(self.name, (self.arguments)()).about(self.about);
+        let command =
+            projection::command(self.name, (self.arguments)()).about(crate::cli::localize(self.about));
         match self.name {
             "input" => command.group(clap::ArgGroup::new("selector").args(["pane_id", "pane", "current"]).required(true)),
             "move" => command.group(clap::ArgGroup::new("destination").args(["tab", "new-tab", "new-workspace"]).required(true)),
