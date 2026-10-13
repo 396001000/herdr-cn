@@ -92,7 +92,10 @@ operations::define_operations! {
     AgentWait(AgentWaitParams) => "agent.wait", false, false;
     PaneSplit(PaneSplitParams) => "pane.split", true, true;
     PaneSwap(PaneSwapParams) => "pane.swap", true, true;
-    PaneMove(PaneMoveParams) => "pane.move", true, false;
+    // fork 偏离：上游把 client_shell 标成 false，但汉化 fork 的窗格移动功能需要走
+    // client-shell 通道（旧 CLIENT_SHELL_METHODS 里就有 "pane.move"），必须保持 true，
+    // 否则 pane.move 从通告名单消失、契约用例 advertised_..._v1_contract 失败。
+    PaneMove(PaneMoveParams) => "pane.move", true, true;
     PaneZoom(PaneZoomParams) => "pane.zoom", true, true;
     PaneLayout(PaneLayoutParams) => "pane.layout", false, false;
     PaneProcessInfo(PaneProcessInfoParams) => "pane.process_info", false, false;
