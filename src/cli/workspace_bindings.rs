@@ -33,7 +33,7 @@ pub(crate) fn environment() -> Input<HashMap<String, String>> {
         slot.insert(key, value);
         Ok(())
     })
-    .help("Set an environment variable for the launched process")
+    .help(crate::cli::localize("Set an environment variable for the launched process"))
 }
 
 pub(crate) fn source() -> Input<String> {

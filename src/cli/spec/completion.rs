@@ -9,6 +9,6 @@ pub(super) fn command() -> Command {
                 .value_name("SHELL")
                 .required(true)
                 .value_parser(super::super::completion::SUPPORTED_SHELLS)
-                .help("Shell to generate completions for"),
+                .help(crate::cli::localize("Shell to generate completions for")),
         )
 }

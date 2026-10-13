@@ -116,7 +116,7 @@ pub(crate) fn kind() -> Input<String> {
     })
     .required()
     .configure(|arg| arg.value_parser(AgentKindCodec))
-    .help("Supported agent kind and canonical executable")
+    .help(crate::cli::localize("Supported agent kind and canonical executable"))
 }
 
 /// Lists kinds for help and completion. Only the final `--kind` is validated, by
@@ -151,7 +151,7 @@ pub(crate) fn pane() -> Input<String> {
         Ok(())
     })
     .required()
-    .help("Existing pane at an interactive shell prompt")
+    .help(crate::cli::localize("Existing pane at an interactive shell prompt"))
 }
 
 pub(crate) fn rename_name() -> Input<Option<String>> {
@@ -180,7 +180,7 @@ pub(crate) fn wait_presence() -> Input<Option<crate::api::schema::AgentPromptWai
         });
         Ok(())
     })
-    .help("Wait for the first matching state observed after submission")
+    .help(crate::cli::localize("Wait for the first matching state observed after submission"))
 }
 
 cli_projection! {
@@ -239,6 +239,7 @@ pub(crate) enum Operation {
 }
 
 fn leaf(name: &'static str, arguments: Vec<clap::Arg>, about: &'static str) -> Command {
+    let about = crate::cli::localize(about);
     crate::cli::projection::command(name, arguments).about(about)
 }
 

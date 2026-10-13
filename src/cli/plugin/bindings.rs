@@ -268,18 +268,18 @@ const LOG: Leaf = Leaf {
 
 fn group(name: &'static str, about: &'static str, leaves: &[Leaf]) -> Command {
     Command::new(name)
-        .about(about)
+        .about(crate::cli::localize(about))
         .subcommand_required(true)
         .subcommands(leaves.iter().map(Leaf::command))
 }
 
 pub(crate) fn command() -> Command {
     Command::new("plugin")
-        .about("Install and run workflow plugins")
+        .about(crate::cli::localize("Install and run workflow plugins"))
         .subcommand_required(true)
         .subcommand(
             Command::new("install")
-                .about("Install a plugin from GitHub")
+                .about(crate::cli::localize("Install a plugin from GitHub"))
                 .arg(
                     Arg::new("source")
                         .value_name("OWNER/REPO[/SUBDIR]")
@@ -295,7 +295,7 @@ pub(crate) fn command() -> Command {
         )
         .subcommand(
             Command::new("uninstall")
-                .about("Uninstall a plugin")
+                .about(crate::cli::localize("Uninstall a plugin"))
                 .arg(Arg::new("plugin").value_name("PLUGIN").required(true)),
         )
         .subcommand(
@@ -312,13 +312,13 @@ pub(crate) fn command() -> Command {
         .subcommands(DIRECT.iter().map(Leaf::command))
         .subcommand(
             Command::new("config-dir")
-                .about("Print a plugin config directory")
+                .about(crate::cli::localize("Print a plugin config directory"))
                 .arg(Arg::new("plugin_id").value_name("PLUGIN_ID").required(true)),
         )
         .subcommand(group("action", "List or invoke plugin actions", ACTION))
         .subcommand(
             projection::command("log", (LOG.arguments)())
-                .about("Inspect plugin command logs")
+                .about(crate::cli::localize("Inspect plugin command logs"))
                 .visible_alias("logs")
                 .args_conflicts_with_subcommands(true)
                 .subcommand(LOG.command()),

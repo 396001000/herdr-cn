@@ -7,14 +7,14 @@ use super::projection::{self, ParseError};
 
 pub(crate) fn command() -> Command {
     Command::new("title")
-        .about("Manage the outer terminal title")
+        .about(crate::cli::localize("Manage the outer terminal title"))
         .subcommand_required(true)
         .arg_required_else_help(true)
         .subcommand(
             projection::command("set", ClientWindowTitleSetProjection::arguments())
-                .about("Set the outer terminal title"),
+                .about(crate::cli::localize("Set the outer terminal title")),
         )
-        .subcommand(Command::new("clear").about("Clear the outer terminal title"))
+        .subcommand(Command::new("clear").about(crate::cli::localize("Clear the outer terminal title")))
 }
 
 fn request(matches: &ArgMatches) -> Result<Request, ParseError> {

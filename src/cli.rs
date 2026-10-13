@@ -21,6 +21,8 @@ macro_rules! println {
 
 pub(crate) mod agent;
 mod api;
+mod i18n_text;
+pub(crate) use i18n_text::localize;
 mod completion;
 mod integration;
 mod machine;

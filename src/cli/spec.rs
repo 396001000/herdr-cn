@@ -116,7 +116,7 @@ fn write_requested_help(
 fn update_command() -> Command {
     Command::new("update")
         .about("Download and install the latest version")
-        .arg(flag("handoff").help("Try live handoff after installing"))
+        .arg(flag("handoff").help(crate::cli::localize("Try live handoff after installing")))
 }
 
 fn status_command() -> Command {
@@ -125,27 +125,27 @@ fn status_command() -> Command {
         .arg(json_flag())
         .subcommand(
             Command::new("server")
-                .about("Show running server status")
+                .about(crate::cli::localize("Show running server status"))
                 .arg(json_flag()),
         )
         .subcommand(
             Command::new("client")
-                .about("Show local client status")
+                .about(crate::cli::localize("Show local client status"))
                 .arg(json_flag()),
         )
 }
 
 fn config_command() -> Command {
     Command::new("config")
-        .about("Manage local configuration")
-        .subcommand(Command::new("check").about("Validate config.toml and print diagnostics"))
+        .about(crate::cli::localize("Manage local configuration"))
+        .subcommand(Command::new("check").about(crate::cli::localize("Validate config.toml and print diagnostics")))
         .subcommand(Command::new("reset-keys").about("Reset custom keybindings"))
 }
 
 fn channel_command() -> Command {
     Command::new("channel")
         .about("Manage stable and preview update channels")
-        .subcommand(Command::new("show").about("Print the configured update channel"))
+        .subcommand(Command::new("show").about(crate::cli::localize("Print the configured update channel")))
         .subcommand(
             Command::new("set").about("Choose the update channel").arg(
                 Arg::new("channel")
@@ -164,17 +164,17 @@ fn server_command() -> Command {
         .subcommand(Command::new("reload-config").about("Reload config in the running server"))
         .subcommand(
             Command::new("agent-manifests")
-                .about("Show active agent detection manifests")
+                .about(crate::cli::localize("Show active agent detection manifests"))
                 .arg(json_flag()),
         )
         .subcommand(
             Command::new("update-agent-manifests")
-                .about("Fetch and reload agent detection manifests")
+                .about(crate::cli::localize("Fetch and reload agent detection manifests"))
                 .arg(json_flag()),
         )
         .subcommand(
             Command::new("reload-agent-manifests")
-                .about("Reload local agent detection manifest overrides"),
+                .about(crate::cli::localize("Reload local agent detection manifest overrides")),
         );
     #[cfg(windows)]
     let command = command.arg(
@@ -187,10 +187,10 @@ fn server_command() -> Command {
 fn api_command() -> Command {
     Command::new("api")
         .about("Inspect socket API metadata and live runtime state")
-        .subcommand(Command::new("snapshot").about("Print the live session snapshot"))
+        .subcommand(Command::new("snapshot").about(crate::cli::localize("Print the live session snapshot")))
         .subcommand(
             Command::new("schema")
-                .about("Print or write the bundled API schema")
+                .about(crate::cli::localize("Print or write the bundled API schema"))
                 .arg(json_flag())
                 .arg(path_option("output", "PATH")),
         )
@@ -222,19 +222,19 @@ fn pane_command() -> Command {
 
 fn terminal_command() -> Command {
     Command::new("terminal")
-        .about("Attach to or observe raw terminal streams")
+        .about(crate::cli::localize("Attach to or observe raw terminal streams"))
         .subcommand(
             Command::new("attach")
-                .about("Attach directly to a terminal stream")
+                .about(crate::cli::localize("Attach directly to a terminal stream"))
                 .arg(required("terminal_id", "TERMINAL_ID"))
                 .arg(flag("takeover")),
         )
         .subcommand(
             Command::new("session")
-                .about("Work with terminal sessions")
+                .about(crate::cli::localize("Work with terminal sessions"))
                 .subcommand(
                     Command::new("control")
-                        .about("Control a terminal stream")
+                        .about(crate::cli::localize("Control a terminal stream"))
                         .arg(required("target", "TARGET"))
                         .arg(flag("takeover"))
                         .arg(option("cols", "N"))
@@ -242,7 +242,7 @@ fn terminal_command() -> Command {
                 )
                 .subcommand(
                     Command::new("observe")
-                        .about("Observe a terminal stream")
+                        .about(crate::cli::localize("Observe a terminal stream"))
                         .arg(required("target", "TARGET"))
                         .arg(option("cols", "N"))
                         .arg(option("rows", "N")),
@@ -254,21 +254,21 @@ fn terminal_command() -> Command {
 fn session_command() -> Command {
     Command::new("session")
         .about("Manage named persistent sessions")
-        .subcommand(Command::new("list").about("List sessions").arg(json_flag()))
+        .subcommand(Command::new("list").about(crate::cli::localize("List sessions")).arg(json_flag()))
         .subcommand(
             Command::new("attach")
-                .about("Attach to a session")
+                .about(crate::cli::localize("Attach to a session"))
                 .arg(required("name", "NAME")),
         )
         .subcommand(
             Command::new("stop")
-                .about("Stop a session")
+                .about(crate::cli::localize("Stop a session"))
                 .arg(required("name", "NAME"))
                 .arg(json_flag()),
         )
         .subcommand(
             Command::new("delete")
-                .about("Delete a stopped session")
+                .about(crate::cli::localize("Delete a stopped session"))
                 .arg(required("name", "NAME"))
                 .arg(json_flag()),
         )
@@ -279,17 +279,17 @@ fn integration_command() -> Command {
         .about("Manage built-in agent integrations")
         .subcommand(
             Command::new("install")
-                .about("Install an integration")
+                .about(crate::cli::localize("Install an integration"))
                 .arg(integration_target_arg()),
         )
         .subcommand(
             Command::new("uninstall")
-                .about("Uninstall an integration")
+                .about(crate::cli::localize("Uninstall an integration"))
                 .arg(integration_target_arg()),
         )
         .subcommand(
             Command::new("status")
-                .about("Show integration status")
+                .about(crate::cli::localize("Show integration status"))
                 .arg(flag("outdated-only")),
         )
 }

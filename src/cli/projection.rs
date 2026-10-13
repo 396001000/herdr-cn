@@ -1,6 +1,6 @@
 use std::any::TypeId;
 
-use clap::builder::{StringValueParser, TypedValueParser};
+use clap::builder::{IntoResettable, StyledStr, StringValueParser, TypedValueParser};
 use clap::{parser::ValueSource, Arg, ArgAction, ArgMatches, Command, ValueHint};
 
 use crate::api::schema::{Method, Request};
@@ -55,7 +55,7 @@ pub(crate) struct Leaf {
 
 impl Leaf {
     pub(crate) fn command(&self) -> Command {
-        command(self.name, (self.arguments)()).about(self.about)
+        command(self.name, (self.arguments)()).about(crate::cli::localize(self.about))
     }
 }
 
@@ -419,7 +419,12 @@ impl<T> Input<T> {
         self
     }
 
-    pub(crate) fn help(mut self, help: &'static str) -> Self {
+    /// 帮助文本放宽到 `IntoResettable<StyledStr>`：既继续接受上游各处的 `&'static str`，
+    /// 也接受 i18n::localize() 产出的 owned String（clap 的 Arg::help 本就支持两者）。
+    pub(crate) fn help(
+        mut self,
+        help: impl IntoResettable<StyledStr>,
+    ) -> Self {
         self.argument = self.argument.help(help);
         self
     }

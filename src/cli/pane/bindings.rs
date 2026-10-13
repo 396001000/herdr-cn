@@ -156,7 +156,7 @@ pub(crate) fn environment() -> Input<HashMap<String, String>> {
         slot.insert(key, value);
         Ok(())
     })
-    .help("Set an environment variable for the launched process")
+    .help(crate::cli::localize("Set an environment variable for the launched process"))
 }
 
 pub(crate) fn joined(name: &'static str, value: &'static str) -> Input<String> {
@@ -262,7 +262,7 @@ pub(crate) fn matcher() -> Field<OutputMatch> {
         })
         .once()
         .configure(|arg| arg.conflicts_with("regex").required_unless_present("regex"))
-        .help("Match a literal substring"),
+        .help(crate::cli::localize("Match a literal substring")),
     )
     .input(
         Input::value("regex", "PATTERN", |slot, value| {
@@ -273,7 +273,7 @@ pub(crate) fn matcher() -> Field<OutputMatch> {
         })
         .once()
         .configure(|arg| arg.conflicts_with("match").required_unless_present("match"))
-        .help("Match a Rust regular expression"),
+        .help(crate::cli::localize("Match a Rust regular expression")),
     )
 }
 
@@ -372,10 +372,10 @@ pub(crate) fn destination() -> Field<PaneMoveDestination> {
 cli_projection! { pub(crate) PaneWaitProjection for PaneWaitForOutputParams {
     pane_id => Field::new(String::new()).input(pane_id()),
     source => Field::new(ReadSource::Recent).input(read_source(false)),
-    lines => Field::new(None).input(lines().help("Restrict the searched snapshot to N lines")),
+    lines => Field::new(None).input(lines().help(crate::cli::localize("Restrict the searched snapshot to N lines"))),
     r#match => matcher(),
-    timeout_ms => Field::new(None).input(number("timeout", "MS").help("Fail after this many milliseconds")),
-    strip_ansi => Field::new(true).input(boolean("raw", false).help("Keep ANSI escape sequences while matching")),
+    timeout_ms => Field::new(None).input(number("timeout", "MS").help(crate::cli::localize("Fail after this many milliseconds"))),
+    strip_ansi => Field::new(true).input(boolean("raw", false).help(crate::cli::localize("Keep ANSI escape sequences while matching"))),
 } }
 
 cli_projection! { pub(crate) PaneTargetProjection for PaneTarget {

@@ -11,7 +11,7 @@ pub(crate) fn command() -> Command {
         .subcommand_required(true)
         .subcommand(
             projection::command("show", NotificationShowProjection::arguments())
-                .about("Show a notification"),
+                .about(crate::cli::localize("Show a notification")),
         )
 }
 
