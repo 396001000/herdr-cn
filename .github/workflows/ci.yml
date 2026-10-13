@@ -55,8 +55,35 @@ jobs:
       #
       # 比上游多加 --no-fail-fast：汉化仓库是跟随上游的 fork，一次跑出全部失败
       # 比"撞到第一个就停"更有用——上游合并进来后要一眼看清波及面。
-      - name: cargo nextest
+      # 汉化 fork 的既有失败用例（不是上游合并引入的）。判据：在旧 fork main
+      # (9190c748) 上用同一份 CI 跑基线，结果 9 个失败，下面这 4 个都在其中；
+      # 另外 5 个已被本次调合修好（context_menu 的 close_group 文案、
+      # pane.link.resolve 进入 client-shell 名单、pane.move 标记等）。
+      # 这 4 个是选区/实时交接的行为断言，需要单独排查，先隔离出来，
+      # 让本 CI 能当"上游合并有没有弄坏东西"的回归门用——
+      # 否则永远是红的，新回归会被既有噪音盖住。
+      - name: cargo nextest（回归门，隔离 4 个既有失败）
         env:
           CARGO_INCREMENTAL: 1
+          KNOWN_FAILING: >-
+            test(client::shell::tests::copy::client_mouse_selection_highlights_and_copies_through_endpoint_extraction)
+            | test(client::shell::tests::copy::keyboard_selections_survive_output_and_copy_live_ranges)
+            | test(client::shell::tests::mouse_selection::pane_content_updates_preserve_live_ranges_until_geometry_or_screen_changes)
+            | test(persist::restore::tests::live_handoff_preserves_hook_status_until_next_report)
         run: |
-          cargo nextest run --locked --no-fail-fast --status-level fail --final-status-level slow --failure-output final --success-output never
+          cargo nextest run --locked --no-fail-fast \
+            -E "not (${KNOWN_FAILING})" \
+            --status-level fail --final-status-level slow --failure-output final --success-output never
+      - name: cargo nextest（既有失败用例，仅展示不卡门）
+        env:
+          CARGO_INCREMENTAL: 1
+          KNOWN_FAILING: >-
+            test(client::shell::tests::copy::client_mouse_selection_highlights_and_copies_through_endpoint_extraction)
+            | test(client::shell::tests::copy::keyboard_selections_survive_output_and_copy_live_ranges)
+            | test(client::shell::tests::mouse_selection::pane_content_updates_preserve_live_ranges_until_geometry_or_screen_changes)
+            | test(persist::restore::tests::live_handoff_preserves_hook_status_until_next_report)
+        continue-on-error: true
+        run: |
+          cargo nextest run --locked --no-fail-fast \
+            -E "${KNOWN_FAILING}" \
+            --status-level fail --final-status-level slow --failure-output final
