@@ -47,7 +47,17 @@ impl ClientContextMenuOverlay {
                 ..
             } => vec![
                 item(t!("state.ctx_rename").to_string(), Action::Rename),
-                item(t!("state.ctx_close_group").to_string(), Action::Close),
+                // 上游按 close_group 决定文案：整组关闭→"Close group"，只关这一个→"Close"。
+                // 重做合并时这条分支被汉化旧版整体覆盖，条件丢了（并让 close_group
+                // 变成未使用变量），这里补回来并继续走 t!() 取词条。
+                item(
+                    if *close_group {
+                        t!("state.ctx_close_group").to_string()
+                    } else {
+                        t!("state.ctx_close").to_string()
+                    },
+                    Action::Close,
+                ),
                 item(
                     t!("state.ctx_new_worktree").to_string(),
                     Action::NewWorktree,
