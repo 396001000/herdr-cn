@@ -323,9 +323,18 @@ fn subcommand_help_explains_automation_semantics_without_a_server() {
         ),
     ];
 
+    // 本用例断言的是英文帮助文本。汉化 fork 的默认 locale 是 zh，且 apply_locale 现在
+    // 早于 CLI 分发（否则子命令 --help 会一直按 en 渲染），所以这里显式把配置钉成 en：
+    // 测的是上游契约语义本身，不与翻译层耦合。
+    let cfg_dir = std::env::temp_dir().join(format!("herdr-surface-help-{}", std::process::id()));
+    std::fs::create_dir_all(&cfg_dir).unwrap();
+    let cfg_path = cfg_dir.join("config.toml");
+    std::fs::write(&cfg_path, "[ui]\nlanguage = \"en\"\n").unwrap();
+
     for (args, expected) in cases {
         let output = Command::new(env!("CARGO_BIN_EXE_herdr"))
             .args(*args)
+            .env("HERDR_CONFIG_PATH", &cfg_path)
             .env_remove("HERDR_SOCKET_PATH")
             .env_remove("HERDR_CLIENT_SOCKET_PATH")
             .env_remove("HERDR_ENV")
@@ -346,6 +355,7 @@ fn subcommand_help_explains_automation_semantics_without_a_server() {
             args.join(" ")
         );
     }
+    let _ = std::fs::remove_dir_all(&cfg_dir);
 }
 
 #[test]
