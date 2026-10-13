@@ -31,6 +31,10 @@ jobs:
         uses: dtolnay/rust-toolchain@v1
         with:
           toolchain: ${{ env.RUST_TOOLCHAIN_VERSION }}
+      - name: Install cargo-nextest
+        uses: taiki-e/install-action@v2
+        with:
+          tool: cargo-nextest
       - name: Install Zig
         # build.rs 的 vendored libghostty-vt 需要 zig（与构建流水线同款）
         uses: mlugg/setup-zig@v2
@@ -45,5 +49,11 @@ jobs:
           sudo apt-get install -y cmake ninja-build
       - name: cargo check
         run: cargo check --locked --all-targets --bin herdr
-      - name: cargo test
-        run: cargo test --locked --bin herdr --no-fail-fast
+      # 与上游 `just ci-tests` 同口径：用 nextest 跑（逐个进程隔离）。
+      # 直接 cargo test 是多线程同进程，会让共享全局状态的 UI/选择/持久化用例
+      # 互相干扰而误报失败（验证时 cargo test 挂 8 个，上游 nextest 全绿）。
+      - name: cargo nextest
+        env:
+          CARGO_INCREMENTAL: 1
+        run: |
+          cargo nextest run --locked --status-level fail --final-status-level slow --failure-output final --success-output never
