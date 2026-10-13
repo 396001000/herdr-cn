@@ -173,6 +173,10 @@ mod tests {
             "tab.close",
             "layout.apply",
             "layout.set_split_ratio",
+            // fork 自有：layout.rearrange 不在上游表里。它是窗格重排（UI 会变），
+            // 且旧 request_changes_ui 明确列了 Method::LayoutRearrange —
+            // 因此这里 expected 得包含它，断言继续保护其余条目一个不少。
+            "layout.rearrange",
             "agent.rename",
             "agent.view.set",
             "agent.view.clear",
