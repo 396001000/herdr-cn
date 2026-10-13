@@ -1043,20 +1043,12 @@ fn option(name: &'static str, value_name: &'static str) -> Arg {
         .action(ArgAction::Set)
 }
 
-fn repeatable_option(name: &'static str, value_name: &'static str) -> Arg {
-    option(name, value_name).action(ArgAction::Append)
-}
-
 fn path_option(name: &'static str, value_name: &'static str) -> Arg {
     option(name, value_name).value_hint(ValueHint::AnyPath)
 }
 
 fn required(name: &'static str, value_name: &'static str) -> Arg {
     Arg::new(name).value_name(value_name).required(true)
-}
-
-fn path_arg(name: &'static str, value_name: &'static str) -> Arg {
-    required(name, value_name).value_hint(ValueHint::AnyPath)
 }
 
 #[cfg(test)]
@@ -1285,12 +1277,17 @@ mod tests {
     }
 
     #[test]
-    fn worktree_json_compatibility_flag_stays_out_of_public_spec() {
+    fn worktree_json_compatibility_flag_stays_out_of_public_help() {
         let cmd = super::command();
         for subcommand in ["list", "create", "open", "remove"] {
             let worktree_command = command_path(&cmd, &["worktree", subcommand]);
+            assert!(option_arg(worktree_command, "json").is_hide_set());
             assert!(
-                !has_option(worktree_command, "json"),
+                !worktree_command
+                    .clone()
+                    .render_long_help()
+                    .to_string()
+                    .contains("--json"),
                 "herdr worktree {subcommand} should not advertise --json"
             );
         }

@@ -15,7 +15,7 @@ use std::path::PathBuf;
 
 use tokio::sync::mpsc;
 
-use crate::api::schema::{Method, Request};
+use crate::api::schema::Request;
 
 pub const SOCKET_PATH_ENV_VAR: &str = "HERDR_SOCKET_PATH";
 

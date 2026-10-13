@@ -5,6 +5,7 @@ pub mod commands;
 pub mod common;
 pub mod events;
 pub mod integrations;
+pub(crate) mod operations;
 pub mod panes;
 pub mod plugins;
 pub mod response;
