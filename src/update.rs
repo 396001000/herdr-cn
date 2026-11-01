@@ -441,8 +441,11 @@ fn handle_manifest_announcement(version: &str, value: Option<&serde_json::Value>
     }
 }
 
-fn release_info_from_manifest(manifest: &UpdateManifest) -> Result<Option<ReleaseInfo>, String> {
-    let current = Version::current();
+fn release_info_from_manifest(
+    manifest: &UpdateManifest,
+    current: &Version,
+    installed_is_preview: bool,
+) -> Result<Option<ReleaseInfo>, String> {
     let latest = Version::parse(&manifest.version).ok_or_else(|| {
         let version = &manifest.version;
         t!("update.invalid_version", version = version).to_string()

@@ -167,7 +167,7 @@ impl ClientShellState {
         if let Err(error) = crate::config::update_file_at(
             &self.config.local_config_path,
             edit.description(),
-            |content| edit.apply(content),
+            |content| Ok(edit.apply(content)),
         ) {
             self.set_endpoint_error(error);
             outcome.repaint = true;

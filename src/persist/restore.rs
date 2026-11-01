@@ -729,6 +729,10 @@ fn restore_tab(
                         std::time::Instant::now(),
                     );
                 }
+                #[cfg(unix)]
+                if let Some(agent_state) = handoff_agent_state {
+                    terminal.restore_handoff_agent_state(agent_state);
+                }
                 panes.insert(*id, {
                     let mut pane_state = PaneState::new(terminal_id.clone());
                     pane_state.origin_workspace_id = saved_origin_id.clone();
